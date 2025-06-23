@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +37,10 @@ export interface ResumeData {
     description: string;
   }>;
   skills: string[];
+  skillsWithLevels: Array<{
+    skill: string;
+    level: number;
+  }>;
   languages: string[];
 }
 
@@ -63,6 +66,7 @@ const ResumeBuilder = () => {
     experience: [],
     education: [],
     skills: [],
+    skillsWithLevels: [],
     languages: [],
   });
 
@@ -146,6 +150,31 @@ const ResumeBuilder = () => {
     setResumeData(prev => ({
       ...prev,
       skills: prev.skills.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addSkillWithLevel = (skill: string, level: number = 70) => {
+    if (skill.trim()) {
+      setResumeData(prev => ({
+        ...prev,
+        skillsWithLevels: [...prev.skillsWithLevels, { skill: skill.trim(), level }]
+      }));
+    }
+  };
+
+  const updateSkillLevel = (index: number, level: number) => {
+    setResumeData(prev => ({
+      ...prev,
+      skillsWithLevels: prev.skillsWithLevels.map((skillData, i) => 
+        i === index ? { ...skillData, level } : skillData
+      )
+    }));
+  };
+
+  const removeSkillWithLevel = (index: number) => {
+    setResumeData(prev => ({
+      ...prev,
+      skillsWithLevels: prev.skillsWithLevels.filter((_, i) => i !== index)
     }));
   };
 
@@ -375,13 +404,22 @@ const ResumeBuilder = () => {
                   </TabsContent>
 
                   <TabsContent value="skills" className="space-y-4 mt-6">
-                    <SkillsSection
-                      title="Skills"
-                      items={resumeData.skills}
-                      onAdd={addSkill}
-                      onRemove={removeSkill}
-                      placeholder="Add a skill"
-                    />
+                    {currentStyle === 'creative' ? (
+                      <SkillsWithLevelsSection
+                        items={resumeData.skillsWithLevels}
+                        onAdd={addSkillWithLevel}
+                        onRemove={removeSkillWithLevel}
+                        onUpdateLevel={updateSkillLevel}
+                      />
+                    ) : (
+                      <SkillsSection
+                        title="Skills"
+                        items={resumeData.skills}
+                        onAdd={addSkill}
+                        onRemove={removeSkill}
+                        placeholder="Add a skill"
+                      />
+                    )}
                     
                     <SkillsSection
                       title="Languages"
@@ -464,6 +502,97 @@ const SkillsSection = ({ title, items, onAdd, onRemove, placeholder }: SkillsSec
             >
               ×
             </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface SkillsWithLevelsSectionProps {
+  items: Array<{ skill: string; level: number }>;
+  onAdd: (skill: string, level: number) => void;
+  onRemove: (index: number) => void;
+  onUpdateLevel: (index: number, level: number) => void;
+}
+
+const SkillsWithLevelsSection = ({ items, onAdd, onRemove, onUpdateLevel }: SkillsWithLevelsSectionProps) => {
+  const [inputValue, setInputValue] = useState('');
+  const [levelValue, setLevelValue] = useState(70);
+
+  const handleAdd = () => {
+    if (inputValue.trim()) {
+      onAdd(inputValue, levelValue);
+      setInputValue('');
+      setLevelValue(70);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAdd();
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Skills (with proficiency levels)</h3>
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          <Input
+            placeholder="Add a skill"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="flex-1"
+          />
+          <Input
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Level"
+            value={levelValue}
+            onChange={(e) => setLevelValue(Number(e.target.value))}
+            className="w-20"
+          />
+          <Button onClick={handleAdd} size="sm">Add</Button>
+        </div>
+        <p className="text-xs text-gray-600">Set skill level from 0-100% for the creative style</p>
+      </div>
+      <div className="space-y-3">
+        {items.map((item, index) => (
+          <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+            <div className="flex-1">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium">{item.skill}</span>
+                <span className="text-sm text-gray-600">{item.level}%</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={item.level}
+                  onChange={(e) => onUpdateLevel(index, Number(e.target.value))}
+                  className="flex-1"
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={item.level}
+                  onChange={(e) => onUpdateLevel(index, Number(e.target.value))}
+                  className="w-16 text-center"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={() => onRemove(index)}
+              variant="destructive"
+              size="sm"
+            >
+              ×
+            </Button>
           </div>
         ))}
       </div>

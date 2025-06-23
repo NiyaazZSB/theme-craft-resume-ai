@@ -276,17 +276,21 @@ const ResumePreview = ({ data, theme, style }: ResumePreviewProps) => {
               </div>
             </div>
 
-            {data.skills.length > 0 && (
+            {data.skillsWithLevels && data.skillsWithLevels.length > 0 && (
               <div>
                 <h2 className="text-lg font-bold mb-3">Skills</h2>
                 <div className="space-y-2">
-                  {data.skills.map((skill, index) => (
+                  {data.skillsWithLevels.map((skillData, index) => (
                     <div key={index} className="text-sm">
                       <div className="flex justify-between mb-1">
-                        <span>{skill}</span>
+                        <span>{skillData.skill}</span>
+                        <span className="text-xs">{skillData.level}%</span>
                       </div>
                       <div className="bg-white bg-opacity-30 rounded-full h-2">
-                        <div className="bg-white rounded-full h-2 w-4/5"></div>
+                        <div 
+                          className="bg-white rounded-full h-2 transition-all duration-300" 
+                          style={{ width: `${skillData.level}%` }}
+                        ></div>
                       </div>
                     </div>
                   ))}
