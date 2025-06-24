@@ -1,4 +1,4 @@
-const GOOGLE_API_KEY = 'AIzaSyCNVVkrNOvbBVYZACcmi8aBBY6ErQRsA2M';
+const COHERE_API_KEY = 'iVJRnS6NA9xKymoMqgtWZfLrk8MgDaw6patcpTLQ';
 
 interface AIGenerationRequest {
   prompt: string;
@@ -30,30 +30,27 @@ Example format:
 
     const userPrompt = `Generate professional resume content for: ${request.prompt}. Include a professional summary (2-3 sentences), key experience points (bullet format), and relevant skills list.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`, {
+    const response = await fetch('https://api.cohere.ai/v1/generate', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${COHERE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `${systemPrompt}\n\nUser request: ${userPrompt}`
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 800,
-        }
+        model: 'command',
+        prompt: `${systemPrompt}\n\nUser request: ${userPrompt}`,
+        max_tokens: 800,
+        temperature: 0.7,
+        stop_sequences: [],
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Google API request failed: ${response.status}`);
+      throw new Error(`Cohere API request failed: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.candidates[0].content.parts[0].text;
+    const aiResponse = data.generations[0].text;
 
     // Try to parse JSON response, fallback to text parsing if needed
     try {
@@ -67,7 +64,7 @@ Example format:
       return parseTextResponse(aiResponse, request.prompt);
     }
   } catch (error) {
-    console.error('Google API error:', error);
+    console.error('Cohere API error:', error);
     // Fallback to local generation if API fails
     return generateLocalFallback(request);
   }
