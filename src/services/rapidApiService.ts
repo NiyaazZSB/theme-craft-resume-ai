@@ -1,5 +1,3 @@
-const COHERE_API_KEY = 'iVJRnS6NA9xKymoMqgtWZfLrk8MgDaw6patcpTLQ';
-
 interface AIGenerationRequest {
   prompt: string;
   field?: string;
@@ -12,7 +10,11 @@ interface AIGenerationResponse {
   skills?: string[];
 }
 
-export const generateResumeContent = async (request: AIGenerationRequest): Promise<AIGenerationResponse> => {
+const COHERE_API_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
+
+export const generateResumeContent = async (
+  request: AIGenerationRequest
+): Promise<AIGenerationResponse> => {
   try {
     const systemPrompt = `You are a professional resume writing assistant. Generate professional, concise, and relevant content for resumes. 
 
@@ -24,7 +26,7 @@ Format your response as a JSON object with these exact fields:
 Example format:
 {
   "summary": "Results-driven software engineer with 5+ years of experience...",
-  "experience": "• Developed scalable web applications\n• Led cross-functional teams\n• Improved system performance by 40%",
+  "experience": "• Developed scalable web applications\\n• Led cross-functional teams\\n• Improved system performance by 40%",
   "skills": ["JavaScript", "React", "Node.js", "AWS"]
 }`;
 
@@ -52,7 +54,6 @@ Example format:
     const data = await response.json();
     const aiResponse = data.generations[0].text;
 
-    // Try to parse JSON response, fallback to text parsing if needed
     try {
       const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -60,46 +61,43 @@ Example format:
       }
       throw new Error('No JSON found in response');
     } catch {
-      // Fallback: parse text response manually
       return parseTextResponse(aiResponse, request.prompt);
     }
   } catch (error) {
     console.error('Cohere API error:', error);
-    // Fallback to local generation if API fails
     return generateLocalFallback(request);
   }
 };
 
 const parseTextResponse = (text: string, prompt: string): AIGenerationResponse => {
   const lowerPrompt = prompt.toLowerCase();
-  
-  // Extract skills from the response or prompt
+
   const commonSkills = ['javascript', 'react', 'typescript', 'python', 'java', 'node.js', 'aws', 'docker', 'sql', 'git'];
-  const extractedSkills = commonSkills.filter(skill => 
+  const extractedSkills = commonSkills.filter(skill =>
     text.toLowerCase().includes(skill) || lowerPrompt.includes(skill)
   );
 
   return {
     summary: extractSummaryFromText(text) || generateQuickSummary(prompt),
     experience: extractExperienceFromText(text) || generateQuickExperience(prompt),
-    skills: extractedSkills.length > 0 ? extractedSkills : generateQuickSkills(prompt)
+    skills: extractedSkills.length > 0 ? extractedSkills : generateQuickSkills(prompt),
   };
 };
 
 const extractSummaryFromText = (text: string): string | undefined => {
-  const summaryMatch = text.match(/summary[:\-\s]*(.*?)(?:\n\n|experience|skills)/is);
-  return summaryMatch ? summaryMatch[1].trim() : undefined;
+  const match = text.match(/summary[:\-\s]*(.*?)(?:\n\n|experience|skills)/is);
+  return match ? match[1].trim() : undefined;
 };
 
 const extractExperienceFromText = (text: string): string | undefined => {
-  const experienceMatch = text.match(/experience[:\-\s]*(.*?)(?:\n\n|skills|$)/is);
-  return experienceMatch ? experienceMatch[1].trim() : undefined;
+  const match = text.match(/experience[:\-\s]*(.*?)(?:\n\n|skills|$)/is);
+  return match ? match[1].trim() : undefined;
 };
 
 const generateLocalFallback = (request: AIGenerationRequest): AIGenerationResponse => {
   const prompt = request.prompt.toLowerCase();
   const years = request.yearsOfExperience || '3';
-  
+
   let field = 'technology';
   if (prompt.includes('engineer') || prompt.includes('developer')) field = 'engineering';
   else if (prompt.includes('design')) field = 'design';
@@ -111,7 +109,7 @@ const generateLocalFallback = (request: AIGenerationRequest): AIGenerationRespon
     design: `Creative designer with ${years}+ years of experience creating user-centered digital experiences.`,
     marketing: `Strategic marketing professional with ${years}+ years of experience driving brand growth and customer acquisition.`,
     management: `Experienced leader with ${years}+ years of management experience building high-performing teams.`,
-    technology: `Technology professional with ${years}+ years of experience delivering innovative solutions.`
+    technology: `Technology professional with ${years}+ years of experience delivering innovative solutions.`,
   };
 
   const experiences = {
@@ -119,13 +117,13 @@ const generateLocalFallback = (request: AIGenerationRequest): AIGenerationRespon
     design: `• Created user interface designs that improved user engagement\n• Conducted user research and usability testing\n• Developed and maintained design systems`,
     marketing: `• Developed marketing campaigns that increased lead generation\n• Analyzed market trends and customer data\n• Managed marketing budget allocation and ROI optimization`,
     management: `• Led cross-functional teams to deliver complex projects\n• Implemented process improvements that increased productivity\n• Mentored team members and supported professional development`,
-    technology: `• Implemented technology solutions that improved operational efficiency\n• Managed technical projects from requirements through deployment\n• Established best practices for system maintenance and security`
+    technology: `• Implemented technology solutions that improved operational efficiency\n• Managed technical projects from requirements through deployment\n• Established best practices for system maintenance and security`,
   };
 
   return {
     summary: summaries[field as keyof typeof summaries],
     experience: experiences[field as keyof typeof experiences],
-    skills: generateQuickSkills(request.prompt)
+    skills: generateQuickSkills(request.prompt),
   };
 };
 
@@ -139,7 +137,7 @@ const generateQuickExperience = (prompt: string): string => {
 
 const generateQuickSkills = (prompt: string): string[] => {
   const words = prompt.toLowerCase().split(/[\s,]+/);
-  const skillKeywords = ['react', 'javascript', 'typescript', 'python', 'java', 'node.js', 'aws', 'docker', 'sql', 'git'];
-  const foundSkills = words.filter(word => skillKeywords.includes(word));
-  return foundSkills.length > 0 ? foundSkills : ['Communication', 'Problem Solving', 'Teamwork'];
+  const keywords = ['react', 'javascript', 'typescript', 'python', 'java', 'node.js', 'aws', 'docker', 'sql', 'git'];
+  const found = words.filter(word => keywords.includes(word));
+  return found.length > 0 ? found : ['Communication', 'Problem Solving', 'Teamwork'];
 };
