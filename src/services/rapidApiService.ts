@@ -1,5 +1,4 @@
-
-const RAPIDAPI_KEY = '4e38d9d9b4msh953031350ac1088p174d47jsn46b37c589fe4';
+const GOOGLE_API_KEY = 'AIzaSyCNVVkrNOvbBVYZACcmi8aBBY6ErQRsA2M';
 
 interface AIGenerationRequest {
   prompt: string;
@@ -15,47 +14,60 @@ interface AIGenerationResponse {
 
 export const generateResumeContent = async (request: AIGenerationRequest): Promise<AIGenerationResponse> => {
   try {
-    // Using a general AI text generation endpoint - you may need to adjust based on the specific RapidAPI service
-    const response = await fetch('https://openai80.p.rapidapi.com/chat/completions', {
+    const systemPrompt = `You are a professional resume writing assistant. Generate professional, concise, and relevant content for resumes. 
+
+Format your response as a JSON object with these exact fields:
+- summary: A professional summary (2-3 sentences)
+- experience: Key experience points in bullet format (use • for bullets)
+- skills: An array of relevant skills
+
+Example format:
+{
+  "summary": "Results-driven software engineer with 5+ years of experience...",
+  "experience": "• Developed scalable web applications\n• Led cross-functional teams\n• Improved system performance by 40%",
+  "skills": ["JavaScript", "React", "Node.js", "AWS"]
+}`;
+
+    const userPrompt = `Generate professional resume content for: ${request.prompt}. Include a professional summary (2-3 sentences), key experience points (bullet format), and relevant skills list.`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: {
-        'X-RapidAPI-Key': RAPIDAPI_KEY,
-        'X-RapidAPI-Host': 'openai80.p.rapidapi.com',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a professional resume writing assistant. Generate professional, concise, and relevant content for resumes. Format your response as JSON with fields: summary, experience, and skills (array).'
-          },
-          {
-            role: 'user',
-            content: `Generate professional resume content for: ${request.prompt}. Include a professional summary (2-3 sentences), key experience points (bullet format), and relevant skills list.`
-          }
-        ],
-        max_tokens: 800,
-        temperature: 0.7
+        contents: [{
+          parts: [{
+            text: `${systemPrompt}\n\nUser request: ${userPrompt}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 800,
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
+      throw new Error(`Google API request failed: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = data.candidates[0].content.parts[0].text;
 
     // Try to parse JSON response, fallback to text parsing if needed
     try {
-      return JSON.parse(aiResponse);
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      throw new Error('No JSON found in response');
     } catch {
       // Fallback: parse text response manually
       return parseTextResponse(aiResponse, request.prompt);
     }
   } catch (error) {
-    console.error('RapidAPI error:', error);
+    console.error('Google API error:', error);
     // Fallback to local generation if API fails
     return generateLocalFallback(request);
   }
