@@ -10,7 +10,7 @@ interface AIGenerationResponse {
   skills?: string[];
 }
 
-const COHERE_API_KEY = import.meta.env.Cohere_Api;
+const COHERE_API_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 
 export const generateResumeContent = async (
   request: AIGenerationRequest
