@@ -1,9 +1,16 @@
-
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "ai-resume-generator",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "An intelligent resume builder that uses AI to enhance profile summaries and skills sections",
+  "author": "Niyaaz Anthony",
+  "keywords": ["resume", "generator", "ai", "cv", "builder", "react", "typescript"],
+  "homepage": "https://your-domain.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/ai-resume-generator.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -77,7 +84,6 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "gh-pages": "^6.3.0",
     "globals": "^15.9.0",
-    "lovable-tagger": "^1.1.7",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
