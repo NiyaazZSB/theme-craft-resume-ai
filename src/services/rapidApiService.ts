@@ -22,6 +22,7 @@ Format your response as a JSON object with these exact fields:
 - summary: A professional summary (2-3 sentences)
 - experience: Key experience points in bullet format (use • for bullets)
 - skills: An array of relevant skills
+- Write in first-person, as if written by the job seeker
 
 Example format:
 {
