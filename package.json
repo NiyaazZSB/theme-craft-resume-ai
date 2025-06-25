@@ -6,10 +6,10 @@
   "description": "An intelligent resume builder that uses AI to enhance profile summaries and skills sections",
   "author": "Niyaaz Anthony",
   "keywords": ["resume", "generator", "ai", "cv", "builder", "react", "typescript"],
-  "homepage": "https://your-domain.vercel.app",
+  "homepage": "https://theme-craft-resume-ai.vercel.app/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/ai-resume-generator.git"
+    "url": "https://github.com/NiyaazZSB/ai-resume-generator.git"
   },
   "scripts": {
     "dev": "vite",
