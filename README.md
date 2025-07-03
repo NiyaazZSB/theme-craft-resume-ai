@@ -1,5 +1,9 @@
 # AI Resume Generator
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-blue?style=for-the-badge)](https://theme-craft-resume-ai.vercel.app/)
+
+**Live Demo:** [https://theme-craft-resume-ai.vercel.app/](https://theme-craft-resume-ai.vercel.app/)
+
 An intelligent resume builder that uses AI to enhance your profile summary and skills section, helping you create professional resumes that stand out.
 
 ## 🧠 Key Features
