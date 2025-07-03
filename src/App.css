@@ -40,3 +40,153 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Add these styles to your App.css or index.css */
+
+/* PDF Export optimizations */
+@media print {
+  .resume-preview {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    page-break-inside: avoid;
+    transform: none !important; /* Remove scale transformation for print */
+  }
+  
+  .resume-preview * {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+}
+
+/* Ensure consistent rendering for PDF export */
+.resume-preview {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.4;
+  color: #333;
+  background: white;
+  max-width: 210mm; /* A4 width */
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Prevent content from being cut off */
+.resume-preview h1,
+.resume-preview h2,
+.resume-preview h3 {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.resume-preview .experience-item,
+.resume-preview .education-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+/* Ensure images scale properly */
+.resume-preview img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Skills section optimization */
+.resume-preview .skills-container {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Text wrapping and overflow handling */
+.resume-preview .break-words {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Flexbox improvements for better layout */
+.resume-preview .flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.resume-preview .flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Grid improvements for responsive layout */
+.resume-preview .grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.resume-preview .grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.resume-preview .grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Ensure proper spacing and alignment */
+.resume-preview .col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
+/* Add this to your App.css or index.css */
+
+/* Print and PDF export optimizations */
+@media print {
+  .resume-preview {
+    max-width: none !important;
+    width: 100% !important;
+    transform: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .resume-preview > * {
+    break-inside: avoid;
+  }
+  
+  .experience-item,
+  .education-item,
+  .skills-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* For PDF export specifically */
+.resume-preview.pdf-export {
+  max-width: none !important;
+  width: 100% !important;
+  transform: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* Ensure text doesn't break awkwardly */
+.resume-preview h1,
+.resume-preview h2,
+.resume-preview h3 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+/* Better spacing for PDF */
+.resume-preview .space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.resume-preview .space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.resume-preview .space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
