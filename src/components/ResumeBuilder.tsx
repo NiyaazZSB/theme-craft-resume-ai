@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -50,6 +50,94 @@ export type ResumeStyle = 'modern' | 'classic' | 'creative';
 const ResumeBuilder = () => {
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
+  
+  // Set up the animated resume background on the body
+  useEffect(() => {
+    console.log('Setting up resume background...');
+    const TILE_SIZE = 120;
+    const LOGO_SIZE = 64;
+    const BG_COLOR = '#f6f7f8';
+    const LOGO_SRC = '/resume-icon.svg';
+    const body = document.body;
+    
+    console.log('Body element:', body);
+    
+    // Create a pattern tile
+    const canvas = document.createElement('canvas');
+    canvas.width = TILE_SIZE;
+    canvas.height = TILE_SIZE;
+    const ctx = canvas.getContext('2d');
+    
+    // Add keyframes to the document first
+    const style = document.createElement('style');
+    style.id = 'resume-animation-styles';
+    style.innerHTML = `
+      @keyframes resume-diagonal-move { 
+        0% { background-position: 0 0; } 
+        100% { background-position: ${TILE_SIZE}px ${TILE_SIZE}px; } 
+      }
+    `;
+    document.head.appendChild(style);
+    console.log('Animation styles added');
+    
+    if (ctx) {
+      ctx.fillStyle = BG_COLOR;
+      ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+      
+      const img = new window.Image();
+      img.src = LOGO_SRC;
+      img.onload = () => {
+        console.log('Image loaded successfully');
+        ctx.globalAlpha = 0.18;
+        ctx.drawImage(
+          img,
+          (TILE_SIZE - LOGO_SIZE) / 2,
+          (TILE_SIZE - LOGO_SIZE) / 2,
+          LOGO_SIZE,
+          LOGO_SIZE
+        );
+        const dataUrl = canvas.toDataURL();
+        console.log('Canvas data URL generated:', dataUrl.substring(0, 50) + '...');
+        
+        body.style.setProperty('background-image', `url('${dataUrl}')`, 'important');
+        body.style.setProperty('background-repeat', 'repeat', 'important');
+        body.style.setProperty('background-size', `${TILE_SIZE}px ${TILE_SIZE}px`, 'important');
+        body.style.setProperty('background-color', BG_COLOR, 'important');
+        body.style.setProperty('animation', 'resume-diagonal-move 18s linear infinite', 'important');
+        console.log('Background applied to body with !important');
+        
+        // Debug: Check if styles are actually applied
+        console.log('Applied styles check:');
+        console.log('Background image:', body.style.backgroundImage);
+        console.log('Background color:', body.style.backgroundColor);
+        console.log('Animation:', body.style.animation);
+        console.log('Computed styles:', window.getComputedStyle(body).backgroundImage);
+      };
+      
+      img.onerror = () => {
+        console.error('Failed to load resume icon from:', LOGO_SRC);
+        // Fallback - just set background color and animation
+        body.style.animation = 'resume-diagonal-move 18s linear infinite';
+      };
+    }
+    
+    body.style.setProperty('background-color', BG_COLOR, 'important');
+    console.log('Background color set to:', BG_COLOR);
+    
+    return () => {
+      console.log('Cleaning up resume background...');
+      // Clean up - remove important styles
+      body.style.removeProperty('background-image');
+      body.style.removeProperty('background-repeat');
+      body.style.removeProperty('background-size');
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('animation');
+      const existingStyle = document.getElementById('resume-animation-styles');
+      if (existingStyle && document.head.contains(existingStyle)) {
+        document.head.removeChild(existingStyle);
+      }
+    };
+  }, []);
   
   const [activeTab, setActiveTab] = useState('personal');
   const [currentTheme, setCurrentTheme] = useState<Theme>('blue');
@@ -245,11 +333,16 @@ const ResumeBuilder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">AI Resume Builder</h1>
-          <p className="text-gray-600">Create a professional resume with AI assistance</p>
+    <div className="min-h-screen relative z-10">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8 bg-white/90 backdrop-blur-sm rounded-2xl p-8 mx-4 shadow-xl border border-white/20">
+          <h1 className="text-4xl font-bold text-primary mb-4">
+            AI Resume Builder
+          </h1>
+          <p className="text-gray-700 text-lg max-w-2xl mx-auto">
+            Create a professional resume with AI assistance and modern styling
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -265,7 +358,7 @@ const ResumeBuilder = () => {
               </Button>
             </div>
 
-            <Card>
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-white/20">
               <CardContent className="p-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="grid w-full grid-cols-4">
@@ -436,7 +529,7 @@ const ResumeBuilder = () => {
 
           {/* Preview Section */}
           <div className="lg:sticky lg:top-4">
-            <Card>
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-white/20">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Live Preview</h3>
                 <div ref={previewRef}>
